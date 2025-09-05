@@ -1,69 +1,72 @@
-let responses = {}; // JSONデータを格納する変数
+let responses = {}; // JSONの読み込みデータ用
 
-const messagesDiv = document.getElementById("messages");
-const userInput = document.getElementById("userInput");
-const sendButton = document.querySelector("button");
+// ページ読み込み時に履歴を復元
+window.onload = () => {
+  loadChatHistory();
+  loadResponses();
+};
 
-// 最初は送信ボタンを無効化（辞書ロード後に有効化）
-sendButton.disabled = true;
-
-// JSONを読み込む
-fetch("responses.json")
-  .then(res => res.json())
-  .then(data => {
-    responses = data;
-    console.log("Responses loaded:", responses);
-    sendButton.disabled = false; // 辞書が読み込めたらボタン有効化
-  })
-  .catch(err => console.error("Error loading responses.json", err));
-
-function sendMessage() {
-  const text = userInput.value.trim();
-  if (!text) return;
-
-  addMessage("user", text);
-  userInput.value = "";
-
-  handleResponse(text.toLowerCase());
+// JSONファイルからレスポンスを読み込む
+function loadResponses() {
+  fetch("responses.json")
+    .then(res => res.json())
+    .then(data => {
+      responses = data;
+    })
+    .catch(err => console.error("Error loading responses:", err));
 }
 
-async function handleResponse(text) {
-  let reply = "";
+// メッセージ送信
+function sendMessage() {
+  const input = document.getElementById("userInput");
+  const message = input.value.trim();
+  if (!message) return;
 
-  // PokeAPIにアクセスする場合
-  if (text.startsWith("pokemon")) {
-    const parts = text.split(" ");
-    if (parts.length > 1) {
-      const pokemonName = parts[1];
-      reply = await getPokemonInfo(pokemonName);
-    } else {
-      reply = "Please tell me which Pokémon you want info about. (e.g., pokemon pikachu)";
-    }
-  } 
-  // 辞書の応答
-  else {
-    // responses が空ならエラーメッセージを返す
-    if (Object.keys(responses).length === 0) {
-      reply = "Sorry, responses not loaded yet.";
-    } else {
-      const matchedKey = Object.keys(responses).find(key => text.includes(key));
-      if (matchedKey) {
-        const options = responses[matchedKey];
-        reply = options[Math.floor(Math.random() * options.length)];
-      } else {
-        reply = "Sorry, I don't understand.";
-      }
-    }
+  addMessage("You", message);
+  handleResponse(message);
+
+  input.value = "";
+}
+
+// Botのレスポンス処理
+function handleResponse(message) {
+  const key = message.toLowerCase();
+  let reply = "Sorry, I don't understand.";
+
+  if (responses[key]) {
+    const options = responses[key];
+    reply = options[Math.floor(Math.random() * options.length)];
   }
 
-  addMessage("bot", reply);
+  addMessage("Bot", reply);
 }
 
+// メッセージを画面と履歴に追加
 function addMessage(sender, text) {
-  const msg = document.createElement("div");
-  msg.className = sender;
-  msg.textContent = (sender === "user" ? "You: " : "Bot: ") + text;
-  messagesDiv.appendChild(msg);
-  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  const messages = document.getElementById("messages");
+  const msg = document.createElement("p");
+  msg.textContent = `${sender}: ${text}`;
+  messages.appendChild(msg);
+
+  saveChatHistory();
 }
 
+// 履歴を保存
+function saveChatHistory() {
+  const messages = document.getElementById("messages");
+  localStorage.setItem("chatHistory", messages.innerHTML);
+}
+
+// 履歴を読み込み
+function loadChatHistory() {
+  const saved = localStorage.getItem("chatHistory");
+  if (saved) {
+    document.getElementById("messages").innerHTML = saved;
+  }
+}
+
+// 履歴を削除（初期化ボタン用）
+function clearChat() {
+  document.getElementById("messages").innerHTML = "";
+  localStorage.removeItem("chatHistory");
+}
