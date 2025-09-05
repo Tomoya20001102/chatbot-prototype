@@ -1,0 +1,9 @@
+
+{
+  "hello": ["Hi there!", "Hello!", "Hey! How's it going?"],
+  "how are you": ["I'm doing great!", "Pretty good, thanks!", "Feeling awesome!"],
+  "bye": ["Goodbye!", "See you later!", "Bye! Have a great day!"],
+  "thanks": ["You're welcome!", "No problem!", "Anytime!"],
+  "good night": ["Good night!", "Sweet dreams!", "Have a restful sleep!"],
+  "good morning": ["Good morning!", "Rise and shine!", "Hope you have a great day!"]
+}
