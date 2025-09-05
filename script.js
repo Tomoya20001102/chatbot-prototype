@@ -29,13 +29,28 @@ function sendMessage() {
 }
 
 // Botのレスポンス処理
-function handleResponse(message) {
-  const key = message.toLowerCase();
+async function handleResponse(message) {
+  const lowerMsg = message.toLowerCase();
   let reply = "Sorry, I don't understand.";
 
-  if (responses[key]) {
-    const options = responses[key];
-    reply = options[Math.floor(Math.random() * options.length)];
+  // --- PokeAPI呼び出し判定 ---
+  // 「pokemon pikachu」や「tell me about pikachu」に対応
+  if (lowerMsg.includes("pokemon") || /about|info/.test(lowerMsg)) {
+    // ユーザー入力からポケモン名を抽出（単語の最後を仮定）
+    const parts = lowerMsg.split(" ");
+    const pokemonName = parts[parts.length - 1]; 
+
+    reply = await getPokemonInfo(pokemonName);
+  } 
+  else {
+    // --- 辞書から部分一致を探す ---
+    const matchedKey = Object.keys(responses).find(key =>
+      lowerMsg.includes(key)
+    );
+    if (matchedKey) {
+      const options = responses[matchedKey];
+      reply = options[Math.floor(Math.random() * options.length)];
+    }
   }
 
   addMessage("Bot", reply);
