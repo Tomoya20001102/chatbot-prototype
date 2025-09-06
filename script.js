@@ -124,3 +124,27 @@ function addMessage(sender, text) {
 
   saveChatHistory();
 }
+
+// --- メッセージを画面と履歴に追加（画像対応） --- //
+function addMessage(sender, text, imageUrl = null) {
+  const messages = document.getElementById("messages");
+
+  const msg = document.createElement("div");
+  msg.className = `message ${sender.toLowerCase()}`;
+
+  const bubble = document.createElement("div");
+  bubble.className = "bubble";
+  bubble.textContent = text;
+
+  if (imageUrl) {
+    const img = document.createElement("img");
+    img.src = imageUrl;
+    bubble.appendChild(img);
+  }
+
+  msg.appendChild(bubble);
+  messages.appendChild(msg);
+
+  messages.scrollTop = messages.scrollHeight; // 最新メッセージへスクロール
+  saveChatHistory();
+}

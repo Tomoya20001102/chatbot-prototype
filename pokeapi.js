@@ -1,12 +1,17 @@
-// PokeAPIを呼び出してポケモン情報を取得
-async function getPokemonInfo(pokemonName) {
+async function getPokemonInfo(name) {
   try {
-    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName.toLowerCase()}`);
-    if (!res.ok) return `I couldn't find information about ${pokemonName}.`;
+    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
+    if (!res.ok) throw new Error("ポケモンが見つかりません");
+
     const data = await res.json();
 
-    return `${data.name.toUpperCase()} - Type: ${data.types.map(t => t.type.name).join(", ")} | Height: ${data.height} | Weight: ${data.weight}`;
+    const info = `${data.name.toUpperCase()} (図鑑No.${data.id})
+タイプ: ${data.types.map(t => t.type.name).join(", ")}`;
+
+    // 画像付きで返す
+    addMessage("Bot", info, data.sprites.front_default);
+    return "";
   } catch (error) {
-    return "Sorry, I had trouble fetching Pokémon info.";
+    return "そのポケモンの情報は見つからなかったよ。";
   }
 }
